@@ -148,11 +148,23 @@ contains
       real(kind=REAL_BYTE), intent(out) :: dx, dy, west, east, south, north, zmin, zmax
 
 #ifndef PIXELIN
+#ifndef NF
+      !cf
       integer(kind=4) :: ncid, err
       integer(kind=4) :: side_id, xysize_id, side_len, xysize_len, side_dim, xysize_dim
       real(kind=8), allocatable, dimension(:) :: x_range, y_range, z_range, spacing
       integer(kind=4), allocatable, dimension(:) :: dimension
       integer(kind=4) :: x_range_id, y_range_id, z_range_id, spacing_id, dimension_id
+#else
+      !nf
+      integer(kind=4) :: ncid, err
+      character(len=256) :: tmp_char
+      real(kind=8), allocatable, dimension(:) :: x_range, y_range, z_range, spacing
+      real(kind=8), allocatable, dimension(:) :: x_tmp, y_tmp
+      real(kind=8), allocatable, dimension(:,:) :: z_tmp
+      integer(kind=4), allocatable, dimension(:) :: dimension
+      integer(kind=4) :: x_var_id, y_var_id, z_var_id, x_dim_id, y_dim_id
+#endif
 #else
       integer(kind=4), intent(out) :: nxorg, nyorg
       character(len=256) :: descfile
@@ -170,7 +182,8 @@ contains
          write(0,'(a,i0,a,a)') 'netcdf err=', err, ' non-netCDF file=', trim(infilename)
          stop
       end if
-
+#ifndef NF
+!cf
       err = nf_inq_dimid(ncid, 'side', side_id)
       err = nf_inq_dimid(ncid, 'xysize', xysize_id)
 
@@ -201,7 +214,41 @@ contains
       err = nf_get_var_double(ncid, spacing_id, spacing)
       err = nf_get_var_int(ncid, dimension_id, dimension)
       err = nf_close(ncid)
+#else
+!nf
+!平面2次元って決め打ちして良いですよね？
+      allocate(x_range(2))
+      allocate(y_range(2))
+      allocate(z_range(2))
+      allocate(spacing(2))
+      allocate(dimension(2))
+      err = nf_inq_dimid(ncid, 'x', x_dim_id)
+      err = nf_inq_dimid(ncid, 'y', y_dim_id)
+      err = nf_inq_dim(ncid, x_dim_id, tmp_char, dimension(1))
+      err = nf_inq_dim(ncid, y_dim_id, tmp_char, dimension(2))
+      allocate(x_tmp(dimension(1)))
+      allocate(y_tmp(dimension(2)))
+      allocate(z_tmp(dimension(2),dimension(1)))
+      err =  nf_inq_varid(ncid, 'x', x_var_id)
+      err =  nf_inq_varid(ncid, 'y', y_var_id)
+      err =  nf_inq_varid(ncid, 'z', z_var_id)
+      err = nf_get_var_double(ncid, x_var_id, x_tmp)
+      err = nf_get_var_double(ncid, y_var_id, y_tmp)
+      err = nf_get_var_double(ncid, z_var_id, z_tmp)
+      x_range(1) = minval(x_tmp)
+      x_range(2) = maxval(x_tmp)
+      y_range(1) = minval(y_tmp)
+      y_range(2) = maxval(y_tmp)
+      z_range(1) = minval(z_tmp)
+      z_range(2) = maxval(z_tmp)
+      spacing(1) = (x_range(2) - x_range(1)) / (dimension(1) - 1)
+      spacing(2) = (y_range(2) - y_range(1)) / (dimension(2) - 1)
 
+      deallocate(x_tmp)
+      deallocate(y_tmp)
+      deallocate(z_tmp)
+
+#endif
       !*** move values into return variables ***
 #ifndef REAL_DBLE
       west  = x_range(1)
@@ -288,6 +335,7 @@ contains
       real(kind=4), allocatable, dimension(:,:) :: z_tmp
 ! ==============================================================================
 #endif
+      write(*,*)"nx,ny:", nx, ny
 
       !*** open file again ***
       err = nf_open(infilename, NF_NOWRITE, ncid)
@@ -305,11 +353,18 @@ contains
 #ifndef REAL_DBLE
       err = nf_get_var_real(ncid, z_id, z)
 #else
+      write(*,*)"nf_get_var_real start========================="
 ! === Read buffer must be 4 byte. ==============================================
       allocate(z_tmp(nx,ny))
+      write(*,*)"1"
+      write(*,*)shape(z_tmp)
       err = nf_get_var_real(ncid, z_id, z_tmp)
+      write(*,*)"2"
       z = z_tmp
+      write(*,*)"3"
       deallocate(z_tmp)
+      write(*,*)"4"
+            write(*,*)"nf_get_var_real start========================="
 ! ==============================================================================
 #endif
 
