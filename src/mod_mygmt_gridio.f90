@@ -335,7 +335,6 @@ contains
       real(kind=4), allocatable, dimension(:,:) :: z_tmp
 ! ==============================================================================
 #endif
-      write(*,*)"nx,ny:", nx, ny
 
       !*** open file again ***
       err = nf_open(infilename, NF_NOWRITE, ncid)
@@ -353,18 +352,11 @@ contains
 #ifndef REAL_DBLE
       err = nf_get_var_real(ncid, z_id, z)
 #else
-      write(*,*)"nf_get_var_real start========================="
 ! === Read buffer must be 4 byte. ==============================================
       allocate(z_tmp(nx,ny))
-      write(*,*)"1"
-      write(*,*)shape(z_tmp)
       err = nf_get_var_real(ncid, z_id, z_tmp)
-      write(*,*)"2"
       z = z_tmp
-      write(*,*)"3"
       deallocate(z_tmp)
-      write(*,*)"4"
-            write(*,*)"nf_get_var_real start========================="
 ! ==============================================================================
 #endif
 
