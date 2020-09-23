@@ -4,31 +4,31 @@ FC=ifort
 # Added for displacement.
 # PRJ4_DIR: Specify PROJ.4 install directory.
 # CC&CFLAGS: Specify C compiler command and flags.
-PROJ4_DIR=/home/G10004/t-katou/JAGURS/local
+ENV_DIR=/home/taniguchi-j/miniconda3/envs/jagurs
 CC=icc
-CFLAGS=-g -traceback -I$(PROJ4_DIR)/include
+CFLAGS=-g -traceback -I$(ENV_DIR)/include
 
 # BASE: Specify basic compiler options.
 BASE=-fpp -assume byterecl
 
 # FFTW3_INCLUDE_DIR: Specify FFTW3 include directory.
-FFTW3_INCLUDE_DIR=$(MKLROOT)/include/fftw
+FFTW3_INCLUDE_DIR=$(ENV_DIR)/include/fftw
 
 # FFTW3_LIB: Specify linker options to link FFTW3.
 FFTW3_LIB=-mkl=sequential
 
 # OPT: Specify compiler options about optimization level.
-OPT=-check all -warn all -O0 -g -traceback -fpe0 -I$(FFTW3_INCLUDE_DIR) # for DEBUG!
-OPT=-O0 -openmp -openmp-report2 -I$(FFTW3_INCLUDE_DIR)
-OPT=-O2 -openmp -openmp-report2 -I$(FFTW3_INCLUDE_DIR)
+# OPT=-check all -warn all -O0 -g -traceback -fpe0 -I$(FFTW3_INCLUDE_DIR) # for DEBUG!
+# OPT=-O0 -openmp -openmp-report2 -I$(FFTW3_INCLUDE_DIR)
+OPT=-O2 -qopenmp -I$(FFTW3_INCLUDE_DIR)
 
 # NETCDF: Specify the path to NetCDF library.
 NETCDF=/opt/atlocal/netcdf/3.6.3
 NETCDF=/opt/atlocal/netcdf/4.1.3
 
 # LIBS: Specify linker options.
-LIBS=-i-dynamic -L$(NETCDF)/lib -lnetcdf -L$(PROJ4_DIR)/lib -lproj $(FFTW3_LIB) # for NetCDF3!
-LIBS=-i-dynamic -L$(NETCDF)/lib -lnetcdff -lnetcdf -L/opt/atlocal/supplibs/lib -lhdf5_hl -lhdf5 -lcurl -lsz -L$(PROJ4_DIR)/lib -lproj $(FFTW3_LIB) # for NetCDF4!
+# LIBS=-i-dynamic -L$(NETCDF)/lib -lnetcdf -L$(PROJ4_DIR)/lib -lproj $(FFTW3_LIB) # for NetCDF3!
+LIBS=-i-dynamic -L$(ENV_DIR)/lib -lnetcdff -lnetcdf -lhdf5_hl -lhdf5 -lcurl -lsz -lproj $(FFTW3_LIB) # for NetCDF4!
 
 # EXEC: Specify the name of executable.
 EXEC=jagurs
@@ -44,7 +44,7 @@ PREC=REAL_DBLE
 
 # MPI=ON: MPI version is made.
 # Else, serial version is made.
-MPI=ON
+# MPI=ON
 
 # USE_ALLTOALLV=ON: Use MPI_Alltoallv for inter-nest communications.
 # Else, MPI_Allreduce is used.
@@ -72,7 +72,7 @@ CONV_CHECK=ON
 #        DIROUT: GMT snapshot files are written into directories.
 # Else, original GMT output.
 #OUTPUT=DIROUT
-#OUTPUT=NCDIO
+OUTPUT=NCDIO
 
 # MULTI=ON: Multi-members on a job is supported.
 #MULTI=ON
@@ -82,7 +82,7 @@ CONV_CHECK=ON
 #SINGLE_TGS=ON
 
 # CARTESIAN=ON: Cartesian axis is utilized.
-#CARTESIAN=ON
+CARTESIAN=ON
 
 # UPWIND3=ON: Difference scheme for advective term is changed into 3rd-order upwind
 # from original 1st-order upwind.

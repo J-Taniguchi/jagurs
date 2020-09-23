@@ -192,6 +192,10 @@ real(kind=REAL_BYTE) :: check_arrival_height = 0.01d0 ! [m]
 ! === Elastic loading with interpolation =======================================
 integer(kind=4) :: elastic_loading_interpolation = 1
 ! ==============================================================================
+! === nc compressing ===========================================================
+integer(kind=4) :: deflate_level = 0
+integer(kind=4) :: shuffle_filter = 1
+! ==============================================================================
 #ifdef BANKFILE
 real(kind=REAL_BYTE) :: broken_rate = -1.0d0
 #endif
@@ -207,6 +211,9 @@ contains
 ! === To add max velocity output. by tkato 2012/10/02 ==========================
 !        maxgrdfn, tgstafn, tgsoutfile, pointers, smooth_edges, &
          maxgrdfn, vmaxgrdfn, tgstafn, tgsoutfile, pointers, smooth_edges, &
+! ==============================================================================
+! === nc compression ===========================================================
+         shuffle_filter, deflate_level, &
 ! ==============================================================================
 #ifdef HZMINOUT
          mingrdfn, &

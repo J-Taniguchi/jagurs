@@ -5,7 +5,7 @@ use mod_grid
 ! === Arrival time =============================================================
 !use mod_params, only : velgrd_flag, start_date, missing_value, VEL, HGT, speedgrd_flag
 use mod_params, only : velgrd_flag, start_date, missing_value, VEL, HGT, &
-                       speedgrd_flag, check_arrival_time
+                       speedgrd_flag, check_arrival_time, shuffle_filter, deflate_level
 ! ==============================================================================
 ! === Multiple rupture =========================================================
 use mod_params, only : multrupt
@@ -168,6 +168,11 @@ contains
       stat = nf_def_var(ncid, 'myrank',     NF_INT, 1, vdims, mpi_id(3))
       stat = nf_def_var(ncid, 'nprocs_xy',  NF_INT, 1, vdims, mpi_id(4))
       stat = nf_def_var(ncid, 'myrank_xy',  NF_INT, 1, vdims, mpi_id(5))
+      stat = nf_def_var_deflate(ncid, mpi_id(1), shuffle_filter, 1, deflate_level)
+      stat = nf_def_var_deflate(ncid, mpi_id(2), shuffle_filter, 1, deflate_level)
+      stat = nf_def_var_deflate(ncid, mpi_id(3), shuffle_filter, 1, deflate_level)
+      stat = nf_def_var_deflate(ncid, mpi_id(4), shuffle_filter, 1, deflate_level)
+      stat = nf_def_var_deflate(ncid, mpi_id(5), shuffle_filter, 1, deflate_level)
 #endif
 #endif
 
@@ -185,6 +190,8 @@ contains
 
       stat = nf_def_var(ncid, 'lon', NF_DOUBLE, 1, vdims(1), lonid)
       if(stat /= NF_NOERR) write(0,'(a)') nf_strerror(stat)
+      stat = nf_def_var_deflate(ncid, lonid, shuffle_filter, 1, deflate_level)
+      if(stat /= NF_NOERR) write(0,'(a)') nf_strerror(stat)
       att = 'Longitude'
       stat = nf_put_att_text(ncid, lonid, 'long_name', len(trim(att)), att)
       att = 'Degrees'
@@ -192,12 +199,16 @@ contains
 
       stat = nf_def_var(ncid, 'lat', NF_DOUBLE, 1, vdims(2), latid)
       if(stat /= NF_NOERR) write(0,'(a)') nf_strerror(stat)
+      stat = nf_def_var_deflate(ncid, latid, shuffle_filter, 1, deflate_level)
+      if(stat /= NF_NOERR) write(0,'(a)') nf_strerror(stat)
       att = 'Latitude'
       stat = nf_put_att_text(ncid, latid, 'long_name', len(trim(att)), att)
       att = 'Degrees'
       stat = nf_put_att_text(ncid, latid, 'units', len(trim(att)), att)
 
       stat = nf_def_var(ncid, 'time', NF_DOUBLE, 1, vdims(3), timeid)
+      if(stat /= NF_NOERR) write(0,'(a)') nf_strerror(stat)
+      stat = nf_def_var_deflate(ncid, timeid, shuffle_filter, 1, deflate_level)
       if(stat /= NF_NOERR) write(0,'(a)') nf_strerror(stat)
       att = 'Time'
       stat = nf_put_att_text(ncid, timeid, 'long_name', len(trim(att)), att)
@@ -212,6 +223,8 @@ contains
 
       stat = nf_def_var(ncid, 'step', NF_INT, 1, vdims(3), stepid)
       if(stat /= NF_NOERR) write(0,'(a)') nf_strerror(stat)
+      stat = nf_def_var_deflate(ncid, stepid, shuffle_filter, 1, deflate_level)
+      if(stat /= NF_NOERR) write(0,'(a)') nf_strerror(stat)
       att = 'Model step'
       stat = nf_put_att_text(ncid, stepid, 'long_name', len(trim(att)), att)
       att = 'Steps'
@@ -222,12 +235,16 @@ contains
       stat = nf_def_var(ncid, 'initial_displacement', NF_REAL, 3, vdims_id, idid)
 ! ==============================================================================
       if(stat /= NF_NOERR) write(0,'(a)') nf_strerror(stat)
+      stat = nf_def_var_deflate(ncid, idid, shuffle_filter, 1, deflate_level)
+      if(stat /= NF_NOERR) write(0,'(a)') nf_strerror(stat)
       att = 'Initial displacement'
       stat = nf_put_att_text(ncid, idid, 'long_name', len(trim(att)), att)
       att = 'Meters'
       stat = nf_put_att_text(ncid, idid, 'units', len(trim(att)), att)
 
       stat = nf_def_var(ncid, 'max_height', NF_REAL, 2, vdims, mhid)
+      if(stat /= NF_NOERR) write(0,'(a)') nf_strerror(stat)
+      stat = nf_def_var_deflate(ncid, mhid, shuffle_filter, 1, deflate_level)
       if(stat /= NF_NOERR) write(0,'(a)') nf_strerror(stat)
       att = 'Maximum wave height'
       stat = nf_put_att_text(ncid, mhid, 'long_name', len(trim(att)), att)
@@ -240,6 +257,8 @@ contains
 ! ==============================================================================
 #ifdef HZMINOUT
       stat = nf_def_var(ncid, 'min_height', NF_REAL, 2, vdims, minhid)
+      if(stat /= NF_NOERR) write(0,'(a)') nf_strerror(stat)
+      stat = nf_def_var_deflate(ncid, minhid, shuffle_filter, 1, deflate_level)
       if(stat /= NF_NOERR) write(0,'(a)') nf_strerror(stat)
       att = 'Minimum wave height'
       stat = nf_put_att_text(ncid, minhid, 'long_name', len(trim(att)), att)
@@ -255,6 +274,8 @@ contains
 #ifndef SKIP_MAX_VEL
       stat = nf_def_var(ncid, 'max_velocity', NF_REAL, 2, vdims, mvid)
       if(stat /= NF_NOERR) write(0,'(a)') nf_strerror(stat)
+      stat = nf_def_var_deflate(ncid, mvid, shuffle_filter, 1, deflate_level)
+      if(stat /= NF_NOERR) write(0,'(a)') nf_strerror(stat)
       att = 'Maximum flow speed'
       stat = nf_put_att_text(ncid, mvid, 'long_name', len(trim(att)), att)
       att = 'Meters/Second'
@@ -263,6 +284,8 @@ contains
 ! === Arrival time =============================================================
       if(check_arrival_time == 1) then
          stat = nf_def_var(ncid, 'arrival_time', NF_REAL, 2, vdims, atid)
+         if(stat /= NF_NOERR) write(0,'(a)') nf_strerror(stat)
+         stat = nf_def_var_deflate(ncid, atid, shuffle_filter, 1, deflate_level)
          if(stat /= NF_NOERR) write(0,'(a)') nf_strerror(stat)
          att = 'Arrival time'
          stat = nf_put_att_text(ncid, atid, 'long_name', len(trim(att)), att)
@@ -274,6 +297,8 @@ contains
 ! ==============================================================================
 
       stat = nf_def_var(ncid, 'wave_height', NF_REAL, 3, vdims, hzid)
+      if(stat /= NF_NOERR) write(0,'(a)') nf_strerror(stat)
+      stat = nf_def_var_deflate(ncid, hzid, shuffle_filter, 1, deflate_level)
       if(stat /= NF_NOERR) write(0,'(a)') nf_strerror(stat)
       att = 'Wave height'
       stat = nf_put_att_text(ncid, hzid, 'long_name', len(trim(att)), att)
@@ -287,12 +312,16 @@ contains
       if(velgrd_flag == 1) then
          stat = nf_def_var(ncid, 'velocity_x', NF_REAL, 3, vdims, vxid)
          if(stat /= NF_NOERR) write(0,'(a)') nf_strerror(stat)
+         stat = nf_def_var_deflate(ncid, vxid, shuffle_filter, 1, deflate_level)
+         if(stat /= NF_NOERR) write(0,'(a)') nf_strerror(stat)
          att = 'Flow velocity (X-component)'
          stat = nf_put_att_text(ncid, vxid, 'long_name', len(trim(att)), att)
          att = 'Meters/Second'
          stat = nf_put_att_text(ncid, vxid, 'units', len(trim(att)), att)
 
          stat = nf_def_var(ncid, 'velocity_y', NF_REAL, 3, vdims, vyid)
+         if(stat /= NF_NOERR) write(0,'(a)') nf_strerror(stat)
+         stat = nf_def_var_deflate(ncid, vyid, shuffle_filter, 1, deflate_level)
          if(stat /= NF_NOERR) write(0,'(a)') nf_strerror(stat)
          att = 'Flow velocity (Y-component)'
          stat = nf_put_att_text(ncid, vyid, 'long_name', len(trim(att)), att)
@@ -301,6 +330,8 @@ contains
       end if
       if(speedgrd_flag == 1) then
          stat = nf_def_var(ncid, 'speed', NF_REAL, 3, vdims, speedid)
+         if(stat /= NF_NOERR) write(0,'(a)') nf_strerror(stat)
+         stat = nf_def_var_deflate(ncid, speedid, shuffle_filter, 1, deflate_level)
          if(stat /= NF_NOERR) write(0,'(a)') nf_strerror(stat)
          att = 'Flow speed'
          stat = nf_put_att_text(ncid, speedid, 'long_name', len(trim(att)), att)
@@ -1093,4 +1124,3 @@ contains
 #endif
 
 end module mod_ncdio
-
