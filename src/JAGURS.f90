@@ -622,6 +622,9 @@ program JAGURS
          allocate(dgrid(ig)%ruptgrd(1))
          ruptgrd => dgrid(ig)%ruptgrd
          ruptgrd(1) = dgrid(ig)%my%disp_file
+#ifdef MULTI
+         ruptgrd(1) = trim(input_dirname) // ruptgrd(1)
+#endif
       end do
    end if
 ! ==============================================================================
