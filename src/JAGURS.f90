@@ -622,6 +622,9 @@ program JAGURS
          allocate(dgrid(ig)%ruptgrd(1))
          ruptgrd => dgrid(ig)%ruptgrd
          ruptgrd(1) = dgrid(ig)%my%disp_file
+#ifdef MULTI
+         ruptgrd(1) = trim(input_dirname) // trim(ruptgrd(1))
+#endif
       end do
    end if
 ! ==============================================================================
@@ -727,16 +730,16 @@ program JAGURS
       dgrid(ig)%my%nxorg = nxorg
       dgrid(ig)%my%nyorg = nyorg
 #endif
- 
+
 #ifdef MPI
       ! MPI
-      !       north 
+      !       north
       !   +---+---+---+
       !   | 0 | 1 | 2 | e
       ! w +---+---+---+ a
       ! e | 3 | 4 | 5 | s
       ! s +---+---+---+ t
-      ! t | 6 | 7 | 8 |  
+      ! t | 6 | 7 | 8 |
       !   +---+---+---+
       !       south
 
@@ -791,7 +794,7 @@ program JAGURS
       has_boundary = 0
       if(ix == 1) then
          has_boundary = ior(has_boundary, WEST_BOUND)
-         kx = ix 
+         kx = ix
       end if
       if(ixend == totalNx) then
          has_boundary = ior(has_boundary, EAST_BOUND)
