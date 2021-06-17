@@ -93,12 +93,7 @@ contains
       integer(kind=4) :: n, num_lines
 
       write(6,'(a,a,a)') '[displacement] Open fault parameter file ', trim(fault_param_file), '!'
-#ifndef MULTI
       open(1,file=trim(fault_param_file),action='read',status='old',form='formatted')
-#else
-      file_multi = trim(input_dirname) // trim(fault_param_file)
-      open(1,file=trim(file_multi),action='read',status='old',form='formatted')
-#endif
 
       num_lines = 0
       num_faults = 0
@@ -231,7 +226,7 @@ contains
          deallocate(lat1)
 #endif
       end if
-      return 
+      return
    end subroutine displacement_finalize
 
    subroutine displacement_calc_displacement(dg, ig)
@@ -769,7 +764,7 @@ contains
       include 'aslfftw3.f'
 #endif
 #endif
-      type(data_grids), target, intent(inout) :: dg 
+      type(data_grids), target, intent(inout) :: dg
       real(kind=8), dimension(nlon,nlat), intent(inout) :: zz
       integer(kind=4), intent(in) :: nlon, nlat
 #ifndef CARTESIAN
@@ -777,7 +772,7 @@ contains
 #else
       real(kind=8), intent(in) :: h0
 #endif
-      
+
 ! ==============================================================================
 ! === Initialize FFT Begin =====================================================
 ! ==============================================================================
@@ -1589,7 +1584,7 @@ contains
 #else
    subroutine displacement_calc_h0(dg, zz, nlon, nlat, h0)
 #endif
-      type(data_grids), target, intent(inout) :: dg 
+      type(data_grids), target, intent(inout) :: dg
       real(kind=8), dimension(nlon,nlat), intent(inout) :: zz
       integer(kind=4), intent(in) :: nlon, nlat
 #ifndef CARTESIAN

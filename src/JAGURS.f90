@@ -592,9 +592,6 @@ program JAGURS
             open(1,file=trim(dgrid(ig)%my%disp_file),action='read',status='old',form='formatted',err=100)
             do irupt = 1, nrupt
                read(1,'(a)',err=100) ruptgrd(irupt)
-#ifdef MULTI
-               ruptgrd(irupt) = trim(input_dirname) // trim(ruptgrd(irupt))
-#endif
 #ifdef MPI
 #ifndef ONEFILE
 ! === Displacement =============================================================
@@ -612,6 +609,9 @@ program JAGURS
                write(6,'(a,i0,a,a)') 'grid: ', ig, ' rupture file: ', trim(ruptgrd(irupt))
             end do
             close(1)
+#ifdef MULTI
+            ruptgrd(irupt) = trim(input_dirname) // trim(ruptgrd(irupt))
+#endif
          end if
       end do
    else
@@ -727,16 +727,16 @@ program JAGURS
       dgrid(ig)%my%nxorg = nxorg
       dgrid(ig)%my%nyorg = nyorg
 #endif
- 
+
 #ifdef MPI
       ! MPI
-      !       north 
+      !       north
       !   +---+---+---+
       !   | 0 | 1 | 2 | e
       ! w +---+---+---+ a
       ! e | 3 | 4 | 5 | s
       ! s +---+---+---+ t
-      ! t | 6 | 7 | 8 |  
+      ! t | 6 | 7 | 8 |
       !   +---+---+---+
       !       south
 
@@ -791,7 +791,7 @@ program JAGURS
       has_boundary = 0
       if(ix == 1) then
          has_boundary = ior(has_boundary, WEST_BOUND)
-         kx = ix 
+         kx = ix
       end if
       if(ixend == totalNx) then
          has_boundary = ior(has_boundary, EAST_BOUND)
